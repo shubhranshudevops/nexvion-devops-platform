@@ -52,7 +52,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker_hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) 
                 {
                     sh '''
-                        echo "DOCKER_PASSWORD" | docker login -u ${DOCKER_USERNAME} --password-stdin'
+                        echo "DOCKER_PASSWORD" | docker login -u ${DOCKER_USERNAME} --password-stdin
                         docker tag nexvion-web:${BUILD_NUMBER} ${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER}
                         docker tag nexvion-web:${BUILD_NUMBER} ${DOCKER_USERNAME}/nexvion-web:latest
                         docker push ${DOCKER_USERNAME}/nexvion-web:latest
