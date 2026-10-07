@@ -66,7 +66,9 @@ pipeline {
     post {
         always {
             sh '''
-                docker rm -f nexvion-test-${BUILD_NUMBER} 2>/dev/null || true
+                docker rm -f nexvion-test-${BUILD_NUMBER} 2>&1/dev/null || true
+                docker rm -f ${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER} 2>&1/dev/null || true
+                docker rm -f ${DOCKER_USERNAME}/nexvion-web:latest 2>&1/dev/null || true
             '''
         }
 
