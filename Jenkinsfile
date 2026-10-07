@@ -66,10 +66,10 @@ pipeline {
     post {
         always {
             sh '''
-                docker rm -f nexvion-test-${BUILD_NUMBER} 2>&1/dev/null || true
-                docker rmi nexvion-test-${BUILD_NUMBER} 2>&1/dev/null || true
-                docker rmi ${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER} 2>&1/dev/null || true
-                docker rmi ${DOCKER_USERNAME}/nexvion-web:latest 2>&1/dev/null || true
+                docker rm -f nexvion-test-${BUILD_NUMBER} > /dev/null 2&1 || true
+                docker rmi nexvion-test-${BUILD_NUMBER} > /dev/null 2&1 || true
+                docker rmi ${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER} > /dev/null 2&1 || true
+                docker rmi ${DOCKER_USERNAME}/nexvion-web:latest > /dev/null 2&1 || true
             '''
         }
 
