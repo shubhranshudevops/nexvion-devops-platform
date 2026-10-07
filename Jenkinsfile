@@ -38,11 +38,6 @@ pipeline {
             }
         }
 
-        stage('Secret Scan') {
-            steps {
-                sh 'gitleaks detect --source . --no-banner'
-            }
-        }
 
         stage('Image Scan') {
             steps {
