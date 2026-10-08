@@ -1,0 +1,130 @@
+---
+- name: Setup Nexvion Project Kubernetes KinD Cluster
+  hosts: Nexvion-devops-server
+
+  vars:
+    kind_cluster_name: "nexvion-devops-kind-cluster"
+    normal_user: "ubuntu"
+    normal_user_home: "/home/ubuntu"
+
+  tasks:
+
+    # 1. Install Docker, kubectl and KinD
+    - name: Run existing installation bash script
+      ansible.builtin.script: kind-kubectl-docker-installation.sh
+
+    # 2. Check Docker service is running or not  
+    - name: Ensure Docker service is running
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+
+    # 3. Add ubuntu user to Docker group
+    - name: Add ubuntu user to docker group
+      ansible.builtin.user:
+        name: "{{ normal_user }}"
+        groups: docker
+        append: true
+
+     # ==================================================
+    # 4. Reset SSH connection
+    # ==================================================
+
+    - name: Reset SSH connection after Docker group change
+      ansible.builtin.meta: reset_connection
+
+
+    # ==================================================
+    # 5. Verify Docker access
+    # ==================================================
+
+    - name: Verify Docker access
+      ansible.builtin.command:
+        cmd: docker ps
+      become: false
+      register: docker_check
+      changed_when: false
+
+
+    # ==================================================
+    # 6. Display Docker verification
+    # ==================================================
+
+    - name: Display Docker status
+      ansible.builtin.debug:
+        msg: "{{ docker_check.stdout_lines }}"
+
+
+    # 4. Check whether KinD cluster already exists
+    - name: Check if KinD cluster already exists
+      ansible.builtin.command: kind get clusters
+      register: existing_clusters
+      changed_when: false
+
+    # 5. Copy KinD cluster configuration file
+    - name: Copy KinD cluster config file to remote server
+      ansible.builtin.copy:
+        src: kind-cluster-config.yml
+        dest: "{{ normal_user_home }}/kind-cluster-config.yml"
+        owner: "{{ normal_user }}"
+        group: "{{ normal_user }}"
+        mode: '0644'
+      when: kind_cluster_name not in existing_clusters.stdout_lines
+
+    # 6. Create KinD cluster
+    - name: Create KinD cluster using custom configuration
+      ansible.builtin.command:
+        cmd: "kind create cluster --config {{ normal_user_home }}/kind-cluster-config.yml"
+      when: kind_cluster_name not in existing_clusters.stdout_lines
+      register: cluster_creation
+      changed_when: cluster_creation.rc == 0
+
+    # 7. Create .kube directory for ubuntu user
+    - name: Create .kube directory
+      ansible.builtin.file:
+        path: "{{ normal_user_home }}/.kube"
+        state: directory
+        owner: "{{ normal_user }}"
+        group: "{{ normal_user }}"
+        mode: '0755'
+
+    # 8. Copy kubeconfig to ubuntu user
+    - name: Copy kubeconfig to ubuntu user
+      ansible.builtin.copy:
+        src: /root/.kube/config
+        dest: "{{ normal_user_home }}/.kube/config"
+        remote_src: true
+        owner: "{{ normal_user }}"
+        group: "{{ normal_user }}"
+        mode: '0644'
+      when: cluster_creation.changed or kind_cluster_name in existing_clusters.stdout_lines
+
+    # 9. Deploy NGINX Ingress Controller
+    - name: Deploy NGINX Ingress Controller
+      ansible.builtin.command:
+        cmd: >-
+          kubectl apply
+          -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+      become: false
+      environment:
+        KUBECONFIG: "{{ normal_user_home }}/.kube/config"
+      register: ingress_deploy
+      changed_when: >
+        'created' in ingress_deploy.stdout or
+        'configured' in ingress_deploy.stdout
+
+    # 10. Check Kubernetes nodes
+    - name: Get Kubernetes cluster nodes
+      ansible.builtin.command: kubectl get nodes
+      become: false
+      environment:
+        KUBECONFIG: "{{ normal_user_home }}/.kube/config"
+      register: cluster_nodes
+      changed_when: false
+
+    # 11. Display Kubernetes nodes
+    - name: Display cluster nodes
+      ansible.builtin.debug:
+        msg: "{{ cluster_nodes.stdout_lines }}"
+

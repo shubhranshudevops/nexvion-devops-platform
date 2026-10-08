@@ -6,6 +6,11 @@ resource "aws_instance" "server" {
   key_name                    = var.key_name
   associate_public_ip_address = true
 
+  user_data = <<-EOF
+              #!/bin/bash
+              echo "${file("/home/ubuntu/.ssh/id_ed25519.pub")}" >> /home/ubuntu/.ssh/authorized_keys
+              EOF
+
   root_block_device {
     volume_type = "gp2"
     volume_size = 20
