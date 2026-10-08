@@ -25,3 +25,10 @@ Thumbs.db
 dist/
 build/
 .cache/
+
+#Terraform 
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/crash.log
