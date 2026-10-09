@@ -69,7 +69,7 @@ pipeline {
 				withCredentials([file(credentialsId: 'kind-kubeconfig', variable: 'KUBECONFIG_FILE')])
 				{
         			sh '''
-		    			env.KUBECONFIG = KUBECONFIG_FILE
+		    			export KUBECONFIG="${KUBECONFIG_FILE}"
 		    			kubectl apply -f k8s/namespace.yml
 		    			kubectl apply -f k8s/deployment.yml
             	    	kubectl apply -f k8s/service.yml
