@@ -74,6 +74,8 @@ pipeline {
 							scp -r k8s/. ubuntu@3.111.217.173:/home/ubuntu/k8s/
 							ssh ubuntu@3.111.217.173 " 
 		    				kubectl apply -f /home/ubuntu/k8s/namespace.yml &&
+							kubectl apply -f /home/ubuntu/k8s/configmap.yml &&
+							kubectl apply -f /home/ubuntu/k8s/secret.yml &&
 		    				kubectl apply -f /home/ubuntu/k8s/deployment.yml &&
             	    		kubectl apply -f /home/ubuntu/k8s/service.yml &&
                     		kubectl apply -f /home/ubuntu/k8s/ingress.yml &&
