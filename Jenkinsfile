@@ -73,11 +73,11 @@ pipeline {
 		    				ssh ubuntu@3.111.217.173 "mkdir -p /home/ubuntu/k8s"
 							scp -r k8s/. ubuntu@3.111.217.173:/home/ubuntu/k8s/
 							ssh ubuntu@3.111.217.173 " 
-		    				kubectl apply -f k8s/namespace.yml
-		    				kubectl apply -f k8s/deployment.yml
-            	    		kubectl apply -f k8s/service.yml
-                    		kubectl apply -f k8s/ingress.yml
-		    				kubectl set image deployment/nexvion nexvion=${DOCKERHUB_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion
+		    				kubectl apply -f /home/ubuntu/k8s/namespace.yml &&
+		    				kubectl apply -f /home/ubuntu/k8s/deployment.yml &&
+            	    		kubectl apply -f /home/ubuntu/k8s/service.yml &&
+                    		kubectl apply -f /home/ubuntu/k8s/ingress.yml &&
+		    				kubectl set image deployment/nexvion nexvion=${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion &&
 		    				kubectl rollout status deployment/nexvion -n nexvion --timeout=180s 
 							"
 						'''
