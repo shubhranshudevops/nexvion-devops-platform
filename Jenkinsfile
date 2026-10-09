@@ -62,35 +62,37 @@ pipeline {
             }
         }
 
-	stage('Deploy to Remote Kind Kubernetes Cluster') {
- 	    steps {
-		echo 'Deploying NEXVION to Kubernetes.....'
-		withCredentials([file(credentialsId: 'kind-kubeconfig', variable: 'KUBECONFIG_FILE')])
-		{
-        	sh '''
-		    env.KUBECONFIG = KUBECONFIG_FILE
-		    kubectl apply -f k8s/namespace.yml
-		    kubectl apply -f k8s/deployment.yml
-            	    kubectl apply -f k8s/service.yml
-                    kubectl apply -f k8s/ingress.yml
-		    kubectl set image deployment/nexvion nexvion=${DOCKERHUB_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion
-       		    echo "Checking rollout..."
-		    kubectl rollout status deployment/nexvion -n nexvion --timeout=180s
-		'''
-		}
-	    }
-	}	
+		stage('Deploy to Remote Kind Kubernetes Cluster') {
+ 	    	steps {
+				echo 'Deploying NEXVION to Kubernetes.....'
+			
+				withCredentials([file(credentialsId: 'kind-kubeconfig', variable: 'KUBECONFIG_FILE')])
+				{
+        			sh '''
+		    			env.KUBECONFIG = KUBECONFIG_FILE
+		    			kubectl apply -f k8s/namespace.yml
+		    			kubectl apply -f k8s/deployment.yml
+            	    	kubectl apply -f k8s/service.yml
+                    	kubectl apply -f k8s/ingress.yml
+		    			kubectl set image deployment/nexvion nexvion=${DOCKERHUB_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion
+       		    		echo "Checking rollout..."
+		    			kubectl rollout status deployment/nexvion -n nexvion --timeout=180s
+					'''
+				}
+			} 
+		}	
 
-	stage('Application Health Check') {
+		stage('Application Health Check') {
     	    steps {
-        	sh '''
-        	    echo "Running health check..."
+        		sh '''
+        	    	echo "Running health check..."
 
-           	    kubectl run nexvion-healthcheck --rm -i --restart=Never --image=curlimages/curl:latest -n nexvion -- curl -f http://nexvion-service
-        	'''
+           	    	kubectl run nexvion-healthcheck --rm -i --restart=Never --image=curlimages/curl:latest -n nexvion -- curl -f http://nexvion-service
+        		'''
+				
     		}	
 	   }
-    	}
+    
     }
 
     post {
