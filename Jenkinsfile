@@ -99,7 +99,7 @@ pipeline {
            	    			kubectl run nexvion-healthcheck --rm -i --restart=Never --image=curlimages/curl:latest -n nexvion -- curl -f http://nexvion-service
 							"
         				'''
-				
+					}
     		}	
 	   }
     
