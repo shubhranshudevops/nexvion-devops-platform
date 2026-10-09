@@ -77,7 +77,7 @@ pipeline {
 		    				kubectl apply -f /home/ubuntu/k8s/deployment.yml &&
             	    		kubectl apply -f /home/ubuntu/k8s/service.yml &&
                     		kubectl apply -f /home/ubuntu/k8s/ingress.yml &&
-		    				kubectl set image deployment/nexvion nexvion=${DOCKER_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion &&
+		    				kubectl set image deployment/nexvion nexvion=${DOCKER_USERNAME}/nexvion-web:latest -n nexvion &&
 		    				kubectl rollout status deployment/nexvion -n nexvion --timeout=180s 
 							"
 						'''
