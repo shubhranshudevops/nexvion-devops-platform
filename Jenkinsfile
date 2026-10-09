@@ -90,11 +90,15 @@ pipeline {
 
 		stage('Application Health Check') {
     	    steps {
-        		sh '''
-        	    	echo "Running health check..."
-
-           	    	kubectl run nexvion-healthcheck --rm -i --restart=Never --image=curlimages/curl:latest -n nexvion -- curl -f http://nexvion-service
-        		'''
+				echo "Running health check..."
+				sshagent(credentials: ['kind-ssh-key'])
+					{
+        				sh '''
+		    				ssh ubuntu@3.111.217.173 "
+							kubectl get pods -n nexvion &&
+           	    			kubectl run nexvion-healthcheck --rm -i --restart=Never --image=curlimages/curl:latest -n nexvion -- curl -f http://nexvion-service
+							"
+        				'''
 				
     		}	
 	   }
