@@ -66,17 +66,19 @@ pipeline {
  	    	steps {
 				echo 'Deploying NEXVION to Kubernetes.....'
 			
-				withCredentials([file(credentialsId: 'kind-kubeconfig', variable: 'KUBECONFIG_FILE')])
+				sshagent(credentials: ['kind-ssh-key'])
 				{
         			sh '''
-		    			export KUBECONFIG="${KUBECONFIG_FILE}"
+		    			ssh ubuntu@3.11.217.173 "mkdir -p /home/ubuntu/k8s"
+						scp -r k8s/. ubuntu@3.11.217.173:/home/ubuntu/k8s/
+						ssh ubuntu@3.11.217.173 " 
 		    			kubectl apply -f k8s/namespace.yml
 		    			kubectl apply -f k8s/deployment.yml
             	    	kubectl apply -f k8s/service.yml
                     	kubectl apply -f k8s/ingress.yml
 		    			kubectl set image deployment/nexvion nexvion=${DOCKERHUB_USERNAME}/nexvion-web:${BUILD_NUMBER} -n nexvion
-       		    		echo "Checking rollout..."
-		    			kubectl rollout status deployment/nexvion -n nexvion --timeout=180s
+		    			kubectl rollout status deployment/nexvion -n nexvion --timeout=180s 
+						"
 					'''
 				}
 			} 
