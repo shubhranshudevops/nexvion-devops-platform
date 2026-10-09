@@ -69,9 +69,9 @@ pipeline {
 				sshagent(credentials: ['kind-ssh-key'])
 				{
         			sh '''
-		    			ssh ubuntu@3.11.217.173 "mkdir -p /home/ubuntu/k8s"
-						scp -r k8s/. ubuntu@3.11.217.173:/home/ubuntu/k8s/
-						ssh ubuntu@3.11.217.173 " 
+		    			ssh ubuntu@3.111.217.173 "mkdir -p /home/ubuntu/k8s"
+						scp -r k8s/. ubuntu@3.111.217.173:/home/ubuntu/k8s/
+						ssh ubuntu@3.111.217.173 " 
 		    			kubectl apply -f k8s/namespace.yml
 		    			kubectl apply -f k8s/deployment.yml
             	    	kubectl apply -f k8s/service.yml
